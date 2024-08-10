@@ -1,0 +1,38 @@
+﻿@model List<Auction.Models.Listing> 
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h2>Active Listings</h2>
+
+<div class="container row">
+    @foreach (var listing in Model)
+    {
+        <div class="col-md-4">
+            <div class="card" style="width: 18rem;">
+                <img src="/Images/@listing.ImagePath" class="card-img-top" alt="@listing.Title" style="max-height: 10rem;">
+                <div class="card-body">
+                    <h5 class="card-title">@listing.Title</h5>
+                    <p class="card-text">@listing.Description</p>
+                    <p class="card-text">Price: $@listing.Price</p>
+                    <p class="card-text">
+                        User: @if (listing.IdentityUser != null)
+                    {
+                        @listing.IdentityUser
+                    }
+                    else
+                    {
+                        <span>Anonymous</span>
+                    }
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p>No listings found</p>
+}
