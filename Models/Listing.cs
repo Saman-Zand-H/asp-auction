@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auction.Models
 {
-    public class Listing
+    public class Listing : IHasAuthor
     {
         public int Id { get; set; }
         public string Title { get; set; } = null!;
@@ -15,5 +15,16 @@ namespace Auction.Models
         public virtual IdentityUser? IdentityUser { get; set; }
         public virtual ICollection<Bid>? Bids { get; set; }
         public virtual ICollection<Comment>? Comments { get; set; }
+
+        public IdentityUser? GetWinner()
+        {
+            if (!IsSold) return null;
+            return Bids!.FirstOrDefault(b => b.IsWinner())!.User;
+        }
+
+        public bool IsUserAuthor(string userId)
+        {
+            return IdentityUserId == userId || IdentityUserId == null;
+        }
     }
 }

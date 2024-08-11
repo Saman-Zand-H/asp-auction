@@ -1,0 +1,120 @@
+@model Auction.Models.ViewModels.ListingDetailsViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>@Model.Listing.Title</h2>
+
+<div class="container row">
+    <div class="col-md-9">
+        <div class="card">
+            <img src="/Images/@Model.Listing.ImagePath">
+            <div class="card-body">
+                <h5 class="card-title">
+                    @Model.Listing.Title
+                </h5>
+                <p class="card-text">
+                    @Model.Listing.Description
+                </p>
+                <p class="card-text">
+                    Price: $@Model.Listing.Price
+
+                </p>
+                <p class="card-text">
+                    User: @if (Model.Listing.IdentityUser != null)
+                    {
+                        @Model.Listing.IdentityUser
+                    }
+                    else
+                    {
+                        <span>Anonymous</span>
+                    }   
+                </p>
+            </div>
+            @if (!Model.Listing.IsSold)
+            {
+                // show bidings
+                if (Model.Listing.Bids != null && Model.Listing.Bids.Count > 0)
+                {
+                    <div class="card-footer">
+                        <h5>Bids</h5>
+                        <ul>
+                            @foreach (var bid in Model.Listing.Bids)
+                            {
+                                <li>
+                                    <span>@bid.User</span>
+                                    <span>@bid.Price</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-footer">
+                        <h5>No bids yet</h5>
+                        <form asp-controller="Bid" asp-action="Create">
+                            <input type="hidden" name="ListingId" value="@Model.Listing.Id" />
+                            <div class="form-group">
+                                <label asp-for="Bid.Price"></label>
+                                <input asp-for="Bid.Price" class="form-control" />
+                                <span asp-validation-for="Bid.Price" class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="card-footer">
+                    <h5>Sold to @Model.Listing.GetWinner()!.UserName</h5>
+                </div>
+            }
+
+            <form asp-controller="Comment" asp-action="Create">
+                <input type="hidden" name="ListingId" value="@Model.Listing.Id" />
+                <div class="form-group">
+                    <label asp-for="Comment.Content"></label>
+                    <input asp-for="Comment.Content" class="form-control" />
+                    <span asp-validation-for="Comment.Content" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    Submit
+                </button>
+            </form>
+            <div class="w-100">
+                <a asp-controller="Listing" asp-action="Delete" asp-route-id="@Model.Listing.Id" class="btn w-100 btn-danger">
+                    Delete
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        @if (Model.Listing.Comments != null && Model.Listing.Comments.Count > 0)
+        {
+            <div class="card-footer">
+                <h5>Comments</h5>
+                <ul>
+            @foreach (var comment in Model.Listing.Comments)
+            {
+                <li>
+                    <span>@comment.User</span>
+                    <span>@comment.Content</span>
+                </li>
+            }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="card-footer">
+                <h5>No comments yet</h5>
+            </div>
+        }
+    </div>
+</div>

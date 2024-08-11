@@ -1,10 +1,20 @@
 ﻿@model List<Auction.Models.Listing> 
-
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Home Page";
+    var model = Context.Items["model"] as IHasAuthor;
 }
 
-<h2>Active Listings</h2>
+<div style="display: flex; gap: 1rem; align-items: center;">
+    <span>
+        <h2>Active Listings</h2>
+    </span>
+
+    <span class="h-75">
+        <a class="btn btn-primary" asp-controller="Listing" asp-action="Create">Create Listing</a>
+    </span>
+</div>
 
 <div class="container row">
     @foreach (var listing in Model)
@@ -26,6 +36,15 @@
                         <span>Anonymous</span>
                     }
                     </p>
+                    <a class="btn btn-primary" asp-controller="Listing" asp-action="Details" asp-route-id="@listing.Id">
+                        View
+                    </a>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && listing.IsUserAuthor(UserManager.GetUserId(User)!))
+                    {
+                        <a class="btn btn-danger" asp-controller="Listing" asp-action="Delete" asp-route-id="@listing.Id">
+                            Delete
+                        </a>
+                    }
                 </div>
             </div>
         </div>

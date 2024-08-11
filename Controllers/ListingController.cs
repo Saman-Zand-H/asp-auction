@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Auction.Models;
 using Auction.Data.Services;
 using Microsoft.AspNetCore.Authorization;
+using Auction.Models.ViewModels;
 
 
 namespace Auction.Controllers
@@ -66,6 +67,66 @@ namespace Auction.Controllers
             };
             await _listingService.Add(listing);
 
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var listing = await _listingService.GetById(id.Value);
+            if (listing == null)
+            {
+                return NotFound();
+            }
+
+            var model = new ListingDetailsViewModel
+            {
+                Listing = listing,
+            };
+
+            return View(model);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var listing = await _listingService.GetById(id);
+            if (listing == null || _userManager == null)
+            {
+                return NotFound();
+            }
+
+            string? userId = _userManager.GetUserId(User);
+            if (userId == null || !listing.IsUserAuthor(userId))
+            {
+                return Forbid();
+            }
+
+            return View(listing);
+        }
+
+        [Route("Listing/Delete/{id}")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var listing = await _listingService.GetById(id);
+            if (listing == null || _userManager == null)
+            {
+                return NotFound();
+            }
+
+            string? userId = _userManager.GetUserId(User);
+            if (userId == null || !listing.IsUserAuthor(userId))
+            {
+                return Forbid();
+            }
+            await _listingService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
     }

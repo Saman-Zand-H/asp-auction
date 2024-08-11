@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auction.Models
 {
-    public class Comment
+    public class Comment : IHasAuthor
     {
         public int Id { get; set; }
         public string Content { get; set; } = null!;
@@ -14,5 +14,10 @@ namespace Auction.Models
 
         public int? ListingId { get; set; }
         public virtual Listing? Listing { get; set; }
+
+        public bool IsUserAuthor(string userId)
+        {
+            return IdentityUserId == userId;
+        }
     }
 }
