@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Auction.Data;
 using Auction.Data.Services;
+using Microsoft.Extensions.Logging.Console;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IListingService, ListingService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IBidService, BidService>();
 builder.Services.AddHttpContextAccessor();
 
 
