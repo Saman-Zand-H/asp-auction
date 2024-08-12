@@ -1,0 +1,42 @@
+@model Auction.Models.ViewModels.ListingDetailsVM
+
+@if (Model.Listing.Bids != null && Model.Listing.Bids.Count > 0)
+{
+    <div class="card-footer">
+        <h5>Bids</h5>
+        <ul>
+            @foreach (var bid in Model.Listing.Bids)
+            {
+                <li class="my-2">
+                    <span>@bid.User</span>
+                    <span>@bid.Price</span>
+                    <span>
+                        <a asp-controller="Bid" asp-action="Delete" asp-route-id="@bid.Id" class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
+                    </span>
+                </li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <div class="card-footer">
+        <h5>No bids yet</h5>
+    </div>
+}
+
+<form asp-controller="Bid" asp-action="Create" class="m-2" asp-route-listingId="@Model.Listing.Id">
+    <div class="form-group">
+        <label asp-for="Bid.Price"></label>
+        <div class="input-group">
+            <input asp-for="Bid.Price" class="form-control" />
+
+            <button type="submit" class="btn btn-primary">
+                Submit
+            </button>
+        </div>
+        <span asp-validation-for="Bid.Price" class="text-danger"></span>
+    </div>
+</form>

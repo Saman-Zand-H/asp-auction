@@ -35,6 +35,7 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseResponseCaching();
 app.UseStaticFiles();
 
 app.UseRouting();

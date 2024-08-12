@@ -1,5 +1,6 @@
 using Auction.Data.Services;
 using Auction.Models;
+using Auction.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,28 +12,44 @@ namespace Auction.Controllers
     {
         private readonly IBidService _bidService;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger _logger;
+        private readonly IListingService _listingService;
 
-        public BidController(IBidService bidService, UserManager<IdentityUser> userManager, ILogger<BidController> logger)
+        public BidController(IBidService bidService, UserManager<IdentityUser> userManager, IListingService listingService)
         {
             _bidService = bidService;
             _userManager = userManager;
-            _logger = logger;
+            _listingService = listingService;
         }
 
-        [HttpPost("Create")]
+        [HttpPost("Create/{listingId}")]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Create(Bid bid)
+        public async Task<IActionResult> Create(DetailsBidsVM bid, int listingId)
         {
-            int? listingId = bid.ListingId;
-            if (listingId == null)
+            Listing? listing = await _listingService.GetById(listingId);
+            if (listing == null)
             {
                 return RedirectToAction(nameof(Index), "Listing");
             }
 
-            bid.IdentityUserId = _userManager.GetUserId(User);
-            await _bidService.Add(bid);
+            if (!ModelState.IsValid)
+            {
+                ListingDetailsVM vm = new()
+                {
+                    Bid = bid,
+                    Listing = listing,
+                };
+
+                return View("~/Views/Listing/Details.cshtml", vm);
+            }
+
+            Bid newBid = new()
+            {
+                Price = bid.Price,
+                ListingId = listingId,
+                IdentityUserId = _userManager.GetUserId(User)
+            };
+            await _bidService.Add(newBid);
             return RedirectToAction("Details", "Listing", new { id = listingId });
         }
 

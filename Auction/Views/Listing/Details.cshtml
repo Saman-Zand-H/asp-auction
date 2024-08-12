@@ -1,4 +1,4 @@
-@model Auction.Models.ViewModels.ListingDetailsViewModel
+@model Auction.Models.ViewModels.ListingDetailsVM
 @using Microsoft.AspNetCore.Identity
 @{
     ViewData["Title"] = "Details";
@@ -9,7 +9,7 @@
 <div class="container row">
     <div class="col-md-7">
         <div class="card">
-            <img style="aspect-ratio: 1/1;" class="card-img-top" src="~/Images/@Model.Listing.ImagePath">
+            <img class="card-img-top" src="~/Images/@Model.Listing.ImagePath">
             <div class="card-body">
                 <h5 class="card-title">
                     @Model.Listing.Title
@@ -28,71 +28,31 @@
                     }
                     else
                     {
-                        <span>Anonymous</span>
+                            <span>Anonymous</span>
                     }   
                 </p>
-                @if(!Model.Listing.IsSold)
+                @if (!Model.Listing.IsSold)
                 {
                     <span>
                         <a asp-controller="Listing" asp-action="Close" asp-route-id="@Model.Listing.Id" class="btn btn-primary btn-sm">
                             Close Bid
                         </a>
-                    </span>
+                        </span>
                 }
             </div>
             @if (!Model.Listing.IsSold)
             {
-                if (Model.Listing.Bids != null && Model.Listing.Bids.Count > 0)
-                {
-                    <div class="card-footer">
-                        <h5>Bids</h5>
-                        <ul>
-                            @foreach (var bid in Model.Listing.Bids)
-                            {
-                                <li class="my-2">
-                                    <span>@bid.User</span>
-                                    <span>@bid.Price</span>
-                                    <span>
-                                        <a asp-controller="Bid" asp-action="Delete" asp-route-id="@bid.Id" class="btn btn-danger btn-sm">
-                                            Delete
-                                        </a>
-                                    </span>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                }
-                else
-                {
-                    <div class="card-footer">
-                        <h5>No bids yet</h5>
-                    </div>
-                }
-
-                <form asp-controller="Bid" asp-action="Create" class="m-2">
-                    <input type="hidden" asp-for="Bid.ListingId" value="@Model.Listing.Id" data-val="true" />
-                    <div class="form-group">
-                        <label asp-for="Bid.Price"></label>
-                        <div class="input-group">
-                            <input asp-for="Bid.Price" class="form-control" />
-
-                            <button type="submit" class="btn btn-primary">
-                                Submit
-                            </button>
-                        </div>
-                        <span asp-validation-for="Bid.Price" class="text-danger"></span>
-                    </div>
-                </form>
+                @await Html.PartialAsync("Partials/DetailsBids", Model)
             }
             else
             {
                 <div class="card-footer">
                     <h5>
                         Sold
-                        @if (Model.Listing.GetWinner() != null)
-                        {
-                            <>to @Model.Listing.GetWinner()</>
-                        }
+                    @if (Model.Listing.GetWinner() != null)
+                    {
+                        <>to @Model.Listing.GetWinner()</>
+                    }
                     </h5>
                 </div>
             }
@@ -105,46 +65,6 @@
         </div>
     </div>
     <div class="col-md-5">
-        @if (Model.Listing.Comments != null && Model.Listing.Comments.Count > 0)
-        {
-            <div class="card-footer">
-                <h5>Comments</h5>
-                <ul>
-            @foreach (var comment in Model.Listing.Comments)
-            {
-                <li class="my-2">
-                    <span>@comment.User:</span>
-                    <span>@comment.Content</span>
-                    <span>
-                        <a asp-controller="Comment" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-danger btn-sm">
-                            Delete
-                        </a>
-                    </span>
-                </li>
-            }
-                </ul>
-            </div>
-        }
-        else
-        {
-            <div class="card-footer">
-                <h5>No comments yet</h5>
-            </div>
-        }
-
-        <form asp-controller="Comment" asp-action="Create">
-            <input type="hidden" asp-for="Comment.ListingId" value="@Model.Listing.Id" data-val="true" />
-            <div class="form-group">
-                <label asp-for="Comment.Content"></label>
-                <div class="input-group">
-                    <input asp-for="Comment.Content" class="form-control" />
-
-                    <button type="submit" class="btn btn-primary">
-                        Submit
-                    </button>
-                </div>
-                <span asp-validation-for="Comment.Content" class="text-danger"></span>
-            </div>
-        </form>
+        @await Html.PartialAsync("Partials/DetailsComments", Model)
     </div>
 </div>

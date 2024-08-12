@@ -1,0 +1,38 @@
+@model Auction.Models.Listing
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+
+<div class="container" style="background-color: rgba(138, 129, 133, 0.6); margin-top:50px; margin-bottom: 50px; padding: 20px; border-radius:10px;">
+    <div class="row">
+        <div class="col col-xs-6 col-lg-5">
+            <img src="~/Images/@Model.ImagePath" style="max-width: 400px; max-height: 400px;" />
+        </div>
+        <div class="col col-xs-6 col-lg-7">
+            <h5>
+                <a asp-action="Details" asp-route-id="@Model.Id" style="color: black;">@Model.Title</a>
+                @if (User.Identity != null && User.Identity.IsAuthenticated && Model.IsUserAuthor(UserManager.GetUserId(User)!))
+                {
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-sm">Delete</a>
+                }
+            </h5>
+            <div>@Model.Description</div>
+            <div>Bid: $@Model.Price.ToString("N2")</div>
+            <div>Listed by: @Model.IdentityUser!.Email</div>
+            @if (Model.IsSold)
+            {
+                <div>
+                    Sold 
+                    @if (Model.GetWinner() != null) {
+                        <>to @Model.GetWinner()</>
+                    }
+                </div>
+            }
+            else if(User.Identity != null && User.Identity.IsAuthenticated && Model.IsUserAuthor(UserManager.GetUserId(User)!))
+            {
+                <div>
+                    <a asp-action="Close" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">Close Bid</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

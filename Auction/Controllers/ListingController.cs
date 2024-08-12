@@ -5,7 +5,6 @@ using Auction.Models;
 using Auction.Data.Services;
 using Microsoft.AspNetCore.Authorization;
 using Auction.Models.ViewModels;
-using Auction;
 
 
 namespace Auction.Controllers
@@ -47,9 +46,8 @@ namespace Auction.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ListingVM listingVM)
         {
-            if (listingVM.Image == null)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("Image", "The Image field is required.");
                 return View(listingVM);
             }
 
@@ -91,7 +89,7 @@ namespace Auction.Controllers
                 return NotFound();
             }
 
-            var model = new ListingDetailsViewModel
+            var model = new ListingDetailsVM
             {
                 Listing = listing,
             };

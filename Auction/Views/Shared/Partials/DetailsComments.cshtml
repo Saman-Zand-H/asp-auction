@@ -1,0 +1,42 @@
+@model Auction.Models.ViewModels.ListingDetailsVM
+
+@if (Model.Listing.Comments != null && Model.Listing.Comments.Count > 0)
+{
+    <div class="card-footer">
+        <h5>Comments</h5>
+        <ul>
+            @foreach (var comment in Model.Listing.Comments)
+            {
+                <li class="my-2">
+                    <span>@comment.User:</span>
+                    <span>@comment.Content</span>
+                    <span>
+                        <a asp-controller="Comment" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
+                    </span>
+                </li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <div class="card-footer">
+        <h5>No comments yet</h5>
+    </div>
+}
+
+<form asp-controller="Comment" asp-action="Create" asp-route-listingId="@Model.Listing.Id">
+    <div class="form-group">
+        <label asp-for="Comment.Content"></label>
+        <div class="input-group">
+            <input asp-for="Comment.Content" class="form-control" />
+
+            <button type="submit" class="btn btn-primary">
+                Submit
+            </button>
+        </div>
+        <span asp-validation-for="Comment.Content" class="text-danger"></span>
+    </div>
+</form>
