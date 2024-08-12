@@ -1,0 +1,80 @@
+﻿@model PaginatedList<Auction.Models.Listing> 
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@{
+    ViewData["Title"] = "Home Page";
+    var prevDisabled = !Model.HasPrevious ? "disabled" : "";
+    var nextDisabled = !Model.HasNext ? "disabled" : "";
+}
+
+<div style="display: flex; gap: 1rem; align-items: center;">
+    <span>
+        <h2>Active Listings</h2>
+    </span>
+
+    <span class="h-75">
+        <a class="btn btn-primary" asp-controller="Listing" asp-action="Create">Create Listing</a>
+    </span>
+</div>
+
+<div class="container">
+    <div class="row">
+        @foreach (var listing in Model)
+        {
+            <div class="container" style="background-color: rgba(138, 129, 133, 0.6); margin-top:50px; margin-bottom: 50px; padding: 20px; border-radius:10px;">
+                <div class="row">
+                    <div class="col col-xs-6 col-lg-5">
+                        <img src="~/Images/@listing.ImagePath" style="max-width: 400px; max-height: 400px;" />
+                    </div>
+                    <div class="col col-xs-6 col-lg-7">
+                        <h5>
+                            <a asp-action="Details" asp-route-id="@listing.Id" style="color: black;">@listing.Title</a>
+                            @if (User.Identity != null && User.Identity.IsAuthenticated && listing.IsUserAuthor(UserManager.GetUserId(User)!))
+                            {
+                                <a asp-action="Delete" asp-route-id="@listing.Id" class="btn btn-danger btn-sm">Delete</a>
+                            }
+                        </h5>
+                        <div>@listing.Description</div>
+                        <div>Bid: $@listing.Price.ToString("N2")</div>
+                        <div>Listed by: @listing.IdentityUser!.Email</div>
+                        @if (listing.IsSold)
+                        {
+                            <div>
+                                Sold 
+                                @if (listing.GetWinner() != null) {
+                                    <>to @listing.GetWinner()</>
+                                }
+                            </div>
+                        }
+                        else if(User.Identity != null && User.Identity.IsAuthenticated && listing.IsUserAuthor(UserManager.GetUserId(User)!))
+                        {
+                            <div>
+                                <a asp-action="Close" asp-route-id="@listing.Id" class="btn btn-primary btn-sm">Close Bid</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <nav aria-label="Listings Pagination">
+                <ul class="pagination">
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" href="?pageIndex=@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <p>No listings found</p>
+}
